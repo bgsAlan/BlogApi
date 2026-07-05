@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Str;
@@ -23,14 +24,14 @@ class PostController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where('title', 'like', "%{$search}%");
             })
-            ->latest()->paginate(10);
-        return $posts;
+            ->paginate(10);
+        return PostResource::collection($posts);
     }
 
     public function show(Post $post)
     {
         $post->load(['user', 'kategori', 'tags', 'comments.user']);
-        return $post;
+        return new PostResource($post);
     }
 
     public function store(StorePostRequest $request)
