@@ -37,7 +37,7 @@ class PostController extends Controller
     {
         $post = new Post($request->validated());
         $post->slug = Str::slug($request->title) . '-' . Str::random(6);
-        $post->user_id = auth()->id() ?? \App\Models\User::first()->id; // set manual, bypass fillable
+        $post->user_id = auth()->id();
         //update published_at disaat is_published true
         if ($request->is_published && !$request->published_at) {
             $post->published_at = now();
