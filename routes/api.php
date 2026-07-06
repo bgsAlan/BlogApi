@@ -18,3 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts', [PostController::class, 'store']);
     Route::put('/posts/{post:slug}', [PostController::class, 'update']);
 });
+
+//Add route to admin
+Route::middleware(['auth:sanctum','admin'])->group(function () {
+    Route::get('/admin/posts', [PostController::class, 'adminIndex']);
+});

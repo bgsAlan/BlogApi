@@ -54,10 +54,22 @@ class PostController extends Controller
 
     public function update(UpdatePostRequest $request, Post $post)
     {
+        $this->authorize('update', $post);
+
         $post->update($request->validated());
+
         if ($request->has('tags')) {
             $post->tags()->sync($request->tags);
         }
-        return response()->json($post->load(['user', 'kategori', 'tags']));
+
+        return new PostResource($post->load(['user', 'kategori', 'tags']));
     }
+
+    //add adminIndex
+    public function adminIndex() {
+        $posts = Post::with(['user','kategori','tags'])->latest()->paginate(10);
+        return PostResource::collection($posts);
+    }
+
+    
 }
