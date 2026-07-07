@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
+use App\Services\PostService;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Str;
@@ -34,33 +35,20 @@ class PostController extends Controller
         return new PostResource($post);
     }
 
+    public function __construct(protected PostService $postService) {}
+
     public function store(StorePostRequest $request)
     {
-        $post = new Post($request->validated());
-        $post->slug = Str::slug($request->title) . '-' . Str::random(6);
-        $post->user_id = auth()->id();
-        //update published_at disaat is_published true
-        if ($request->is_published && !$request->published_at) {
-            $post->published_at = now();
-        }
-        $post->save();
+        $post = $this->postService->create($request->validated(), auth()->id());
 
-        if ($request->has('tags')) {
-            $post->tags()->attach($request->tags);
-        }
-
-        return response()->json($post->load(['user', 'kategori', 'tags']), 201);
+        return new PostResource($post->load(['user', 'kategori', 'tags']));
     }
 
     public function update(UpdatePostRequest $request, Post $post)
     {
         $this->authorize('update', $post);
 
-        $post->update($request->validated());
-
-        if ($request->has('tags')) {
-            $post->tags()->sync($request->tags);
-        }
+        $post = $this->postService->update($post, $request->validated());
 
         return new PostResource($post->load(['user', 'kategori', 'tags']));
     }
@@ -71,5 +59,9 @@ class PostController extends Controller
         return PostResource::collection($posts);
     }
 
-    
+    public function destroy(Post $post) {
+        $this->authorize('delete',$post);
+        $post->delete();
+        return response()->json(['message' => 'Post berhasil dihapus']);
+    }
 }
