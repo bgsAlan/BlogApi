@@ -3,10 +3,14 @@
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 
 // Publik — siapa aja bisa akses tanpa login
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post:slug}', [PostController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/posts/{post:slug}/comments', [CommentController::class, 'store']);
+});
 
 
 
