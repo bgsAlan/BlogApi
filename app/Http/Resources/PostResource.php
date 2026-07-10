@@ -19,7 +19,7 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
-            'thumbnail' => $this->thumbnail,
+            'thumbnail' => $this->thumbnail ? asset('storage/' . $this->thumbnail) : null,
             'is_published' => $this->is_published,
             'published_at' => $this->published_at,
             'user' => new UserResource($this->whenLoaded('user')),

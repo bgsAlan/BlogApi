@@ -26,7 +26,7 @@ class StorePostRequest extends FormRequest
             'kategori_id' => ['required', 'exists:kategoris,id'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'thumbnail' => ['nullable', 'string'],
+            'thumbnail' => ['nullable', 'image','max:2048'],
             'is_published' => ['boolean'],
             'tags' => ['array'],
             'tags.*' => ['exists:tags,id'],

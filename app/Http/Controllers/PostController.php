@@ -8,6 +8,7 @@ use App\Http\Resources\PostResource;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 
@@ -15,17 +16,22 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $posts = Post::published()->with(['user', 'kategori', 'tags'])
-            ->when($request->kategori, function ($query, $kategori) {
-                $query->whereHas('kategori', fn($q) => $q->where('slug', $kategori));
-            })
-            ->when($request->tag, function ($query, $tag) {
-                $query->whereHas('tags', fn($q) => $q->where('slug', $tag));
-            })
-            ->when($request->search, function ($query, $search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
-            ->paginate(10);
+        //bikin cache
+        $cacheKey = 'posts.index.'.md5(json_encode($request->query()));
+        $posts = Cache::remember($cacheKey,now()->addMinutes(5),function () use ($request){
+            return Post::published()->with(['user', 'kategori', 'tags'])
+                    ->when($request->kategori, function ($query, $kategori) {
+                        $query->whereHas('kategori', fn($q) => $q->where('slug', $kategori));
+                    })
+                    ->when($request->tag, function ($query, $tag) {
+                        $query->whereHas('tags', fn($q) => $q->where('slug', $tag));
+                    })
+                    ->when($request->search, function ($query, $search) {
+                        $query->where('title', 'like', "%{$search}%");
+                    })
+                    ->paginate(10);
+               
+        });
         return PostResource::collection($posts);
     }
 
