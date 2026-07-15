@@ -26,7 +26,7 @@ class UpdatePostRequest extends FormRequest
             'kategori_id' => ['sometimes', 'exists:kategoris,id'],
             'title' => ['sometimes', 'string', 'max:255'],
             'content' => ['sometimes', 'string'],
-            'thumbnail' => ['nullable', 'string'],
+            'thumbnail' => ['nullable', 'image','max:2048'],
             'is_published' => ['sometimes', 'boolean'],
             'tags' => ['sometimes', 'array'],
             'tags.*' => ['exists:tags,id'],
