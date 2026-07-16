@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Models\Post;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -13,6 +14,8 @@ class PostService
 {
     public function create(array $data, int $userId): Post
     {
+        //Bungkus ke database transaction
+        return DB::transaction(function () use ($data, $userId){
         $post = new Post($data);
         $post->slug = Str::slug($data['title']) . '-' . Str::random(6);
         $post->user_id = $userId;
@@ -32,7 +35,9 @@ class PostService
         }
         Cache::flush();
         return $post;
+        });
     }
+   
 
     public function update(Post $post, array $data): Post
     {
